@@ -8,7 +8,7 @@ String errorCode(err_t err){
 
 void sendError(err_t err)
 {
-    COMMUNICATION_SERIAL_PORT.println("ERR " + errorCode(err));
+    COMMUNICATION_SERIAL_PORT.println("ERR " + errorCode(err)+";");
 }
 
 void throwError(err_t err)

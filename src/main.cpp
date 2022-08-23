@@ -99,16 +99,16 @@ void addCommandToScene(uint16_t command) {
 }
 
 void sendSceneAck(int index) {
-  COMMUNICATION_SERIAL_PORT.println("RUNNING " + String(index));
+  COMMUNICATION_SERIAL_PORT.println("RUNNING " + String(index)+";");
 }
 
 void sendStorageAck(int index) {
-  COMMUNICATION_SERIAL_PORT.println("STORED " + String(index));
+  COMMUNICATION_SERIAL_PORT.println("STORED " + String(index)+";");
 }
 
-void sendAck() { COMMUNICATION_SERIAL_PORT.println("ACK"); }
+void sendAck() { COMMUNICATION_SERIAL_PORT.println("ACK;"); }
 
-void sendNack() { COMMUNICATION_SERIAL_PORT.println("NACK"); }
+void sendNack() { COMMUNICATION_SERIAL_PORT.println("NACK;"); }
 
 void resolveAction(action_key_t key, int param = -1) {
   switch (key) {
@@ -149,14 +149,14 @@ void resolveInput() {
   char rawCommand[16] = "";
   int meaningfulLength =
       COMMUNICATION_SERIAL_PORT.readBytesUntil('\n', rawCommand, 16);
-  rawCommand[meaningfulLength] = NULL;
+  rawCommand[meaningfulLength] = '\0';
 
   sendLog("Received command: " + String(rawCommand));
 
   // Parse command
   char* command = strtok(rawCommand, " ");
   if (command != NULL) {
-    if (strcmp(command, EXECUTE_CMD) == 0) {
+    if (strstr(command, EXECUTE_CMD) != NULL) {
       // Execute command
       char* action = strtok(NULL, " ");
       char* port = strtok(NULL, " ");
@@ -185,7 +185,7 @@ void resolveInput() {
       } else {
         throwError(err_t::ERR_CMD_ACTION_INVALID_CODE);
       }
-    } else if (strcmp(command, STORE_CMD) == 0) {
+    } else if (strstr(command, STORE_CMD) != NULL) {
       char* action = strtok(NULL, " ");
       char* port = strtok(NULL, " ");
       if (action == NULL) {
@@ -214,7 +214,7 @@ void resolveInput() {
 
       addCommandToScene(compressedAction);
       sendStorageAck(scene_length);
-    } else if (strcmp(command, START_CMD) == 0) {
+    } else if (strstr(command, START_CMD) != NULL) {
       // Start scene
       if (!isSceneRunning) {
         isSceneRunning = true;
@@ -224,7 +224,7 @@ void resolveInput() {
       } else {
         sendLog("Scene is already running");
       }
-    } else if (strcmp(command, STOP_CMD) == 0) {
+    } else if (strstr(command, STOP_CMD) != NULL) {
       // Stop scene
       if (isSceneRunning) {
         isSceneRunning = false;
@@ -236,7 +236,7 @@ void resolveInput() {
         sendLog("Scene is not running");
         sendNack();
       }
-    } else if (strcmp(command, PAUSE_CMD) == 0) {
+    } else if (strstr(command, PAUSE_CMD) != NULL) {
       // Pause scene
       if (isSceneRunning) {
         isPaused = true;
@@ -245,7 +245,7 @@ void resolveInput() {
         sendLog("Scene is not running");
         sendNack();
       }
-    } else if (strcmp(command, RESUME_CMD) == 0) {
+    } else if (strstr(command, RESUME_CMD) != NULL) {
       // Resume scene
       if (isPaused) {
         isPaused = false;
@@ -254,22 +254,21 @@ void resolveInput() {
         sendLog("Scene is not paused");
         sendNack();
       }
-    } else if (strcmp(command, CLEAR_CMD) == 0) {
+    } else if (strstr(command, CLEAR_CMD) != NULL) {
       // Clear commands
       clearScene();
-      delay(5);
       sendAck();
       sendLog("Scene cleared");
-    } else if (strcmp(command, STATUS_CMD) == 0) {
+    } else if (strstr(command, STATUS_CMD) != NULL) {
       // Get status
       if (isPaused && isSceneRunning) {
         COMMUNICATION_SERIAL_PORT.println("STATUS PAUSED " +
-                                          String(currentCommandIndex));
+                                          String(currentCommandIndex)+";");
       } else if (isSceneRunning) {
         COMMUNICATION_SERIAL_PORT.println("STATUS RUNNING " +
-                                          String(currentCommandIndex));
+                                          String(currentCommandIndex)+";");
       } else {
-        COMMUNICATION_SERIAL_PORT.println("STATUS IDLE");
+        COMMUNICATION_SERIAL_PORT.println("STATUS IDLE;");
       }
     } else {
       throwError(err_t::ERR_CMD_INVALID_CODE);
@@ -293,7 +292,7 @@ void resolveScene() {
         currentCommandIndex = 0;
         currentCommand = 0;
         nextEventTime = 0;
-        COMMUNICATION_SERIAL_PORT.println("FINISHED");
+        COMMUNICATION_SERIAL_PORT.println("FINISHED;");
       } else {
         action_key_t currentKeyCode = keyFromStorage(currentCommand);
         int currentParam = paramFromStorage(currentCommand);
@@ -312,19 +311,19 @@ void setup() {
   setupPorts();
   Serial.begin(9600);
   Serial2.begin(9600);
-  addCommandToScene(commandToStorage(OPEN_KEY_CODE, 1));
-  addCommandToScene(commandToStorage(WAIT_KEY_CODE, 1));
-  addCommandToScene(commandToStorage(CLOSE_KEY_CODE, 1));
-  addCommandToScene(commandToStorage(WAIT_KEY_CODE, 1));
-  addCommandToScene(commandToStorage(OPEN_KEY_CODE, 2));
-  addCommandToScene(commandToStorage(WAIT_KEY_CODE, 2));
-  addCommandToScene(commandToStorage(CLOSE_KEY_CODE, 2));
+  // addCommandToScene(commandToStorage(OPEN_KEY_CODE, 1));
+  // addCommandToScene(commandToStorage(WAIT_KEY_CODE, 1));
+  // addCommandToScene(commandToStorage(CLOSE_KEY_CODE, 1));
+  // addCommandToScene(commandToStorage(WAIT_KEY_CODE, 1));
+  // addCommandToScene(commandToStorage(OPEN_KEY_CODE, 2));
+  // addCommandToScene(commandToStorage(WAIT_KEY_CODE, 2));
+  // addCommandToScene(commandToStorage(CLOSE_KEY_CODE, 2));
 
-  sendLog("Debut Scene loaded");
-  for (int i = 0; i < scene_length; i++) {
-    sendLog("Scene command: " + String(scene[i]));
-  }
-  sendLog("End Scene loaded");
+  // sendLog("Debut Scene loaded");
+  // for (int i = 0; i < scene_length; i++) {
+  //   sendLog("Scene command: " + String(scene[i]));
+  // }
+  // sendLog("End Scene loaded");
 }
 
 void loop() {
