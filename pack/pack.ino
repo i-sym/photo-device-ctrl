@@ -225,9 +225,7 @@ void resolveInput() {
         throwError(err_t::ERR_CMD_PARAM_INVALID_CODE);
         return;
       }
-      String actionStr = String(action);
-      int param =  actionStr.toInt();
-      
+      unsigned int param = atoi(port);
       if (strcmp(action, "O") == 0) {
         resolveAction(OPEN_KEY_CODE, param);
         sendAck();
@@ -256,9 +254,7 @@ void resolveInput() {
         return;
       }
 
-      String actionStr = String(action);
-      int param =  actionStr.toInt();
-
+      unsigned int param = atoi(port);
       action_key_t key = UNDEFINED_KEY_CODE;
       if (strcmp(action, "O") == 0) {
         key = OPEN_KEY_CODE;
