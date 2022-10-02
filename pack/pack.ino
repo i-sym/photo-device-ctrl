@@ -203,9 +203,9 @@ void resolveAction(action_key_t key, int param = -1) {
 }
 
 void resolveInput() {
-  char rawCommand[16] = "";
+  char rawCommand[64] = "";
   int meaningfulLength =
-      COMMUNICATION_SERIAL_PORT.readBytesUntil('\n', rawCommand, 16);
+      COMMUNICATION_SERIAL_PORT.readBytes(rawCommand, 64);
   rawCommand[meaningfulLength] = '\0';
 
   sendLog("Received command: " + String(rawCommand));
@@ -385,7 +385,7 @@ void setup() {
 
 void loop() {
   // Check if there is any data in Serial
-  if (COMMUNICATION_SERIAL_PORT.available() > 3) {
+  if (COMMUNICATION_SERIAL_PORT.available()) {
     resolveInput();
   }
   resolveScene();
